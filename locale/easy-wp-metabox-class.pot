@@ -1,0 +1,87 @@
+# Easy WP Meta Box Class pot file.
+# Copyright (C) 2021 Paulino Michelazzo
+# This file is distributed under the same license as the Easy WP Meta Box Class package.
+# FIRST AUTHOR Paulino Michelazzo <michelazzo@me.com>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Easy WP Meta Box Class 1.0.0\n"
+"Report-Msgid-Bugs-To: michelazzo@me.com\n"
+"POT-Creation-Date: 2021-08-25 23:06+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Add New Group"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Select a color"
+msgstr ""
+
+msgid "Select..."
+msgstr ""
+
+msgid "Text Field"
+msgstr ""
+
+msgid "Number Field"
+msgstr ""
+
+msgid "Date Field"
+msgstr ""
+
+msgid "Textarea Field"
+msgstr ""
+
+msgid "Select Field"
+msgstr ""
+
+msgid "Radio Field"
+msgstr ""
+
+msgid "Image Field"
+msgstr ""
+
+msgid "WYSIWYG Editor Field"
+msgstr ""
+
+msgid "Taxonomy Field"
+msgstr ""
+
+msgid "Repeater Field"
+msgstr ""
+
+msgid "Time Field"
+msgstr ""
+
+msgid "Code Editor Field"
+msgstr ""
+
+msgid "Checkbox Field"
+msgstr ""
+
+msgid "Checkbox List Field"
+msgstr ""
+
+msgid "ColorPicker Field"
+msgstr ""
+
+msgid "File Field"
+msgstr ""
+
+msgid "Posts Field"
+msgstr ""
+
+msgid "Conditional Field"
+msgstr ""
+
+msgid "Sorry, you cannot upload this file type for this field."
+msgstr ""

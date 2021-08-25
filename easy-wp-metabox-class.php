@@ -75,17 +75,18 @@ class Easy_Meta_Box {
   protected $_Local_images;
 
   /**
-   * SelfPath to allow themes as well as plugins.
+   * Paths to allow themes as well as plugins.
    *
    * @var string
    * @author Paulino Michelazzo
    * @since 1.0
    * @access protected
    */
-  protected $SelfPath;
+  protected $SelfPath, $jQueryUiPath;
 
   /**
    * $field_types holds used field types.
+   * 
    * @var array
    * @author Paulino Michelazzo
    * @since 1.0
@@ -95,6 +96,7 @@ class Easy_Meta_Box {
 
   /**
    * $inGroup holds grouping boolean.
+   * 
    * @var boolean
    * @author Paulino Michelazzo
    * @since 1.0
@@ -111,12 +113,12 @@ class Easy_Meta_Box {
    * @param array $meta_box
    */
   public function __construct ($meta_box) {
-    // If we are not in admin area exit.
+    // If is not the admin area, exit.
     if (!is_admin()) {
       return;
     }
 
-    // Load translation
+    // Load the translation.
     add_filter('init', [$this, 'load_textdomain']);
 
     // Assign meta box values to local variables and add it's missed values.
@@ -131,13 +133,16 @@ class Easy_Meta_Box {
       }
       elseif ($meta_box['use_with_theme'] === false) {
         $this->SelfPath = plugins_url('easy-wp-metabox', plugin_basename(dirname(__FILE__)));
+        $this->jQueryUiPath = $this->SelfPath . '/js/jquery-ui/';
       }
       else {
         $this->SelfPath = $meta_box['use_with_theme'];
+        $this->jQueryUiPath = $this->SelfPath . '/js/jquery-ui/';
       }
     }
     else {
       $this->SelfPath = plugins_url('easy-wp-metabox', plugin_basename(dirname(__FILE__)));
+      $this->jQueryUiPath = $this->SelfPath . '/js/jquery-ui/';
     }
 
     // Add metaboxes
@@ -148,6 +153,7 @@ class Easy_Meta_Box {
     // Limit File type at upload
     add_filter('wp_handle_upload_prefilter', array($this,'Validate_upload_file_type'));
   }
+
 
   /**
    * Load the JavaScript and CSS assets.
@@ -182,17 +188,16 @@ class Easy_Meta_Box {
   }
 
   /**
-   * Check the select field and add actions.
+   * Check the select field and enqueue jQuery select2 library.
    *
    * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
   public function check_field_select() {
-    $plugin_path = $this->SelfPath;
-    // Enqueue jQuery select2 library.
-    wp_enqueue_style('at-multiselect-select2-css', $plugin_path . '/js/select2/select2.css', [], null);
-    wp_enqueue_script('at-multiselect-select2-js', $plugin_path . '/js/select2/select2.js', ['jquery'], false, true);
+    $path = $this->SelfPath . '/js/select2/';
+    wp_enqueue_style('easy-multiselect-select2-css', $path . 'select2.css', [], null);
+    wp_enqueue_script('easy-multiselect-select2-js', $path . 'select2.js', ['jquery'], false, true);
   }
 
   /**
@@ -203,7 +208,6 @@ class Easy_Meta_Box {
    * @access public
    */
   public function check_field_upload() {
-    // Add data encoding type for file upload.
     add_action('post_edit_form_tag', [$this, 'add_enctype']);
   }
 
@@ -233,7 +237,7 @@ class Easy_Meta_Box {
   }
 
   /**
-   * Check date field.
+   * Check date field and enqueue the jQuery UI.
    *
    * @author Paulino Michelazzo
    * @since 1.0
@@ -241,16 +245,14 @@ class Easy_Meta_Box {
    */
   public function check_field_date() {
     if ($this->is_edit_page()) {
-      // Enqueue jQuery UI.
-      $plugin_path = $this->SelfPath;
-      wp_enqueue_style('at-jquery-ui-css', $plugin_path . '/js/jquery-ui/jquery-ui.css');
+      wp_enqueue_style('easy-jquery-ui-css', $this->jQueryUiPath . 'jquery-ui.css');
       wp_enqueue_script('jquery-ui');
       wp_enqueue_script('jquery-ui-datepicker');
     }
   }
 
   /**
-   * Check time field.
+   * Check time field and enqueue the jQuery UI.
    *
    * @author Paulino Michelazzo
    * @since 1.0
@@ -258,16 +260,14 @@ class Easy_Meta_Box {
    */
   public function check_field_time() {
     if ($this->is_edit_page()) {
-      $plugin_path = $this->SelfPath;
-      // Enqueue jQuery UI.
-      wp_enqueue_style('at-jquery-ui-css', $plugin_path .'/js/jquery-ui/jquery-ui.css');
+      wp_enqueue_style('easy-jquery-ui-css', $this->jQueryUiPath .'jquery-ui.css');
       wp_enqueue_script('jquery-ui');
-      wp_enqueue_script('at-timepicker', $plugin_path .'/js/jquery-ui/jquery-ui-timepicker-addon.js', ['jquery-ui-slider', 'jquery-ui-datepicker'], false, true);
+      wp_enqueue_script('easy-timepicker', $this->jQueryUiPath .'jquery-ui-timepicker-addon.js', ['jquery-ui-slider', 'jquery-ui-datepicker'], false, true);
     }
   }
 
   /**
-   * Check Field code editor.
+   * Check Field code editor and enqueue JS and CSS code mirror.
    *
    * @author Paulino Michelazzo
    * @since 1.0
@@ -275,17 +275,16 @@ class Easy_Meta_Box {
    */
   public function check_field_code() {
     if ($this->is_edit_page()) {
-      $plugin_path = $this->SelfPath . '/js/codemirror/';
-      // Enqueue code mirror js and css.
-      wp_enqueue_style('at-code-css', $plugin_path . 'codemirror.css', [], null);
-      wp_enqueue_style('at-code-css-dark', $plugin_path . 'solarizedDark.css', [], null);
-      wp_enqueue_style('at-code-css-light', $plugin_path . 'solarizedLight.css', [], null);
-      wp_enqueue_script('at-code-js', $plugin_path . 'codemirror.js', ['jquery'], false, true);
-      wp_enqueue_script('at-code-js-xml', $plugin_path . 'xml.js', ['jquery'], false, true);
-      wp_enqueue_script('at-code-js-javascript', $plugin_path . 'javascript.js', ['jquery'], false, true);
-      wp_enqueue_script('at-code-js-css', $plugin_path .'css.js', ['jquery'], false, true);
-      wp_enqueue_script('at-code-js-clike', $plugin_path .'clike.js', ['jquery'], false, true);
-      wp_enqueue_script('at-code-js-php', $plugin_path .'php.js', ['jquery'], false, true);
+      $path = $this->SelfPath . '/js/codemirror/';
+      wp_enqueue_style('easy-code-css', $path . 'codemirror.css', [], null);
+      wp_enqueue_style('easy-code-css-dark', $path . 'solarizedDark.css', [], null);
+      wp_enqueue_style('easy-code-css-light', $path . 'solarizedLight.css', [], null);
+      wp_enqueue_script('easy-code-js', $path . 'codemirror.js', ['jquery'], false, true);
+      wp_enqueue_script('easy-code-js-xml', $path . 'xml.js', ['jquery'], false, true);
+      wp_enqueue_script('easy-code-js-javascript', $path . 'javascript.js', ['jquery'], false, true);
+      wp_enqueue_script('easy-code-js-css', $path .'css.js', ['jquery'], false, true);
+      wp_enqueue_script('easy-code-js-clike', $path .'clike.js', ['jquery'], false, true);
+      wp_enqueue_script('easy-code-js-php', $path .'php.js', ['jquery'], false, true);
     }
   }
 
@@ -330,7 +329,6 @@ class Easy_Meta_Box {
       else {
         $has_more_fields = false;
       }
-
       // Get the field content.
       $data = get_post_meta($post->ID, $field['id'], $has_more_fields);
       // If there's no data inside the field, get the default value (used when
@@ -341,13 +339,11 @@ class Easy_Meta_Box {
       else {
         $data = $data[0];
       }
-
       // If the file is not an image, repeater of file, call the WP esc_attr
       // function to clean the data.
       if (!in_array($field['type'], ['image', 'repeater','file'])) {
         $data = (is_array($data)) ? array_map('esc_attr', $data) : esc_attr($data);
       }
-
       // Call Separated methods for displaying each type of field.
       call_user_func([$this, 'show_field_' . $field['type']], $field, $data);
     }
@@ -367,7 +363,7 @@ class Easy_Meta_Box {
     global $post;
     $this->show_field_begin($field);
     print '<div id="repeater">';
-    print '<div class="add-button"><button type="button" class="repeater-add-btn">Adicionar novo grupo</button></div>';
+    print '<div class="add-button"><button type="button" class="repeater-add-btn">' . __('Add New Group', 'ewpmb') . '</button></div>';
 
     $submetas = get_post_meta($post->ID, $field['id'], true);
     // The saved data begins here.
@@ -397,10 +393,8 @@ class Easy_Meta_Box {
         // if ($field['sortable']) {
         //   print '<span class="re-control dashicons dashicons-randomize at_re_sort_handle"></span></span>';
         // }
-        print '
-          <div class="pull-right repeater-remove-btn">
-            <button id="remove-btn" class="btn btn-danger" onclick="$(this).parents(\'.items\').remove()">Remove</button>
-          </div>';
+        print '<div class="pull-right repeater-remove-btn">';
+        print '<button id="remove-btn" class="btn btn-danger" onclick="$(this).parents(\'.items\').remove()">' . __('Remove', 'ewpmb') . '</button></div>';
         print '</div>';
         $c++;
       }
@@ -418,7 +412,7 @@ class Easy_Meta_Box {
         }
       }
       print '</div>';
-      print '<div class="repeater-remove-btn"><button type="button" class="btn btn-danger remove-btn">Remover</button></div>';
+      print '<div class="repeater-remove-btn"><button type="button" class="btn btn-danger remove-btn">' . __('Remove', 'ewpmb') . '</button></div>';
       print '</div>';
       print '</div>';
     }
@@ -758,15 +752,14 @@ class Easy_Meta_Box {
     $ext = (is_array($ext) ? implode("|",$ext) : $ext);
     $id = $field['id'];
     $li = ($has_file) ? "<li><a href='{$value['url']}' target='_blank'>{$value['url']}</a></li>" : "";
-
     print "<span class='simplePanelfilePreview'><ul>{$li}</ul></span>";
     print "<input type='hidden' name='{$name}[id]' value='{$value['id']}'/>";
     print "<input type='hidden' name='{$name}[url]' value='{$value['url']}'/>";
     if ($has_file) {
-      print "<input type='button' class='{$multiple} button simplePanelfileUploadclear' id='{$id}' value='Remove File' data-mime_type='{$type}' data-ext='{$ext}'/>";
+      print '<input type="button" class="' . $multiple . ' button simplePanelfileUploadclear" id="' . $id . '" value="' . __('Remove File', 'ewpmb') . '" data-mime_type="' . $type . '" data-ext="' . $ext . '">';
     }
     else {
-      print "<input type='button' class='{$multiple} button simplePanelfileUpload' id='{$id}' value='Upload File' data-mime_type='{$type}' data-ext='{$ext}'/>";
+      print '<input type="button" class="' . $multiple . ' button simplePanelfileUpload" id="' . $id . '" value="' . __('Upload File', 'ewpmb') . '" data-mime_type="' . $type . '" data-ext="' . $ext . '">';
     }
     $this->show_field_end($field);
   }
@@ -799,10 +792,10 @@ class Easy_Meta_Box {
     print "<input type='hidden' name='{$name}[id]' value='{$value['id']}'/>";
     print "<input type='hidden' name='{$name}[url]' value='{$value['url']}'/>";
     if ($has_image) {
-      print "<input class='{$multiple} button  simplePanelimageUploadclear' id='{$id}' value='Remove Image' type='button'/>";
+      print '<input class="' . $multiple . ' button simplePanelimageUploadclear" id="' . $id . '" value="' . __('Remove Image', 'ewpmb') . '" type="button">';
     }
     else {
-      print "<input class='{$multiple} button simplePanelimageUpload' id='{$id}' value='Upload Image' type='button'/>";
+      print '<input class="' . $multiple . ' button simplePanelimageUpload" id="' . $id . '" value="' . __('Upload Image', 'ewpmb') . '" type="button">';
     }
     $this->show_field_end($field);
   }
@@ -826,7 +819,7 @@ class Easy_Meta_Box {
     }
     else {
       print "<input class='at-color".(isset($field['class'])? " {$field['class']}": "")."' type='text' name='{$field['id']}' id='{$field['id']}' value='{$data}' size='8' />";
-      print "<input type='button' class='at-color-select button' rel='{$field['id']}' value='" . __( 'Select a color' ,'apc') . "'/>";
+      print "<input type='button' class='at-color-select button' rel='{$field['id']}' value='" . __( 'Select a color', 'ewpmb') . "'/>";
       print "<div style='display:none' class='at-color-picker' rel='{$field['id']}'></div>";
     }
     $this->show_field_end($field);
@@ -897,7 +890,7 @@ class Easy_Meta_Box {
     else {
       print "<select ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='at-posts-select".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}" . ($field['multiple'] ? "[]' multiple='multiple' style='height:auto'" : "'") . ">";
       if (isset($field['emptylabel'])) {
-        print '<option value="-1">'.(isset($field['emptylabel'])? $field['emptylabel']: __('Select ...','mmb')).'</option>';
+        print '<option value="-1">'.(isset($field['emptylabel'])? $field['emptylabel']: __('Select...', 'ewpmb')).'</option>';
       }
       foreach ($posts as $p) {
         print "<option value='$p->ID'" . selected(in_array($p->ID, $data), true, false) . ">$p->post_title</option>";
@@ -1279,7 +1272,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id'=> $id,
       'type' => 'text',
-      'name' => 'Text Field',
+      'name' => __('Text Field', 'ewpmb'),
       'size' => '60',
       'desc' => '',
       'std' => '',
@@ -1318,7 +1311,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id' => $id,
       'type' => 'number',
-      'name' => 'Number Field',
+      'name' => __('Number Field', 'ewpmb'),
       'desc' => '',
       'std' => 0,
       'min' => 0,
@@ -1360,7 +1353,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id' => $id,
       'type' => 'date',
-      'name' => 'Date Field',
+      'name' => __('Date Field', 'ewpmb'),
       'desc' => '',
       'format' => 'dd/mm/yy',
       'std' => '',
@@ -1401,7 +1394,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id' => $id,
       'type' => 'textarea',
-      'name' => 'Textarea Field',
+      'name' => __('Textarea Field', 'ewpmb'),
       'desc' => '',
       'std' => '',
       'rows' => '',
@@ -1441,7 +1434,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id' => $id,
       'type' => 'select',
-      'name' => 'Select Field',
+      'name' => __('Select Field', 'ewpmb'),
       'desc' => '',
       'std' => [],
       'multiple' => false,
@@ -1480,7 +1473,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id' => $id,
       'type' => 'radio',
-      'name' => 'Radio Field',
+      'name' => __('Radio Field', 'ewpmb'),
       'std' => [],
       'desc' => '',
       'options' => $options,
@@ -1515,7 +1508,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id' => $id,
       'type' => 'image',
-      'name' => 'Image Field',
+      'name' => __('Image Field', 'ewpmb'),
       'desc' => '',
       'std' => ['id' => '', 'url' => ''],
       'multiple' => false,
@@ -1550,7 +1543,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id' => $id,
       'type' => 'wysiwyg',
-      'name' => 'WYSIWYG Editor Field',
+      'name' => __('WYSIWYG Editor Field', 'ewpmb'),
       'std' => '',
       'desc' => '',
       'side' => 0,
@@ -1593,7 +1586,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id' => $id,
       'type' => 'taxonomy',
-      'name' => 'Taxonomy Field',
+      'name' => __('Taxonomy Field', 'ewpmb'),
       'desc' => '',
       'options'=> $options,
       'side' => 0,
@@ -1627,7 +1620,7 @@ class Easy_Meta_Box {
     $new_field = [
       'id' => $id,
       'type' => 'repeater',
-      'name' => 'Repeater Field',
+      'name' => __('Repeater Field', 'ewpmb'),
       'fields' => [],
       'inline' => false,
       'sortable' => true,
@@ -1660,7 +1653,7 @@ class Easy_Meta_Box {
       'std' => '',
       'desc' => '',
       'format' => 'HH:mm',
-      'name' => 'Time Field',
+      'name' => __('Time Field', 'ewpmb'),
       'ampm' => false,
     ];
     $new_field = array_merge($new_field, $args);
@@ -1695,9 +1688,9 @@ class Easy_Meta_Box {
       'std' => '',
       'desc' => '',
       'style' => '',
-      'name' => 'Code Editor Field',
+      'name' => __('Code Editor Field', 'ewpmb'),
       'syntax' => 'php',
-      'theme' => 'defualt',
+      'theme' => 'default',
     ];
     $new_field = array_merge($new_field, $args);
     if (false === $repeater) {
@@ -1730,7 +1723,7 @@ class Easy_Meta_Box {
       'std' => '',
       'desc' => '',
       'style' =>'',
-      'name' => 'Text Field'
+      'name' => __('Text Field', 'ewpmb'),
     ];
     $new_field = array_merge($new_field, $args);
     if (false === $repeater) {
@@ -1787,7 +1780,7 @@ class Easy_Meta_Box {
       'std' => '',
       'desc' => '',
       'style' => '',
-      'name' => 'Checkbox Field'
+      'name' => __('Checkbox Field', 'ewpmb'),
     ];
     $new_field = array_merge($new_field, $args);
     if (false === $repeater) {
@@ -1823,7 +1816,7 @@ class Easy_Meta_Box {
       'std' => '',
       'desc' => '',
       'style' => '',
-      'name' => 'Checkbox List Field',
+      'name' => __('Checkbox List Field', 'ewpmb'),
       'options' => $options,
       'multiple' => true,
     ];
@@ -1856,7 +1849,7 @@ class Easy_Meta_Box {
       'id' => $id,
       'std' => '',
       'desc' => '',
-      'name' => 'ColorPicker Field',
+      'name' => __('ColorPicker Field', 'ewpmb'),
     ];
     $new_field = array_merge($new_field, $args);
     if (false === $repeater) {
@@ -1885,7 +1878,7 @@ class Easy_Meta_Box {
       'type' => 'file',
       'id' => $id,
       'desc' => '',
-      'name' => 'File Field',
+      'name' => __('File Field', 'ewpmb'),
       'multiple' => false,
       'std' => ['id' => '', 'url' => ''],
     ];
@@ -1928,7 +1921,7 @@ class Easy_Meta_Box {
       'type' => 'posts',
       'id' => $id,
       'desc' => '',
-      'name' => 'Posts Field',
+      'name' => __('Posts Field', 'ewpmb'),
       'options'=> $options,
       'multiple' => false,
     ];
@@ -1963,7 +1956,7 @@ class Easy_Meta_Box {
       'std' => '',
       'desc' => '',
       'style' =>'',
-      'name' => 'Conditional Field',
+      'name' => __('Conditional Field', 'ewpmb'),
       'fields' => array()
     ];
     $new_field = array_merge($new_field, $args);
@@ -1998,7 +1991,6 @@ class Easy_Meta_Box {
     if (!is_array($array)) {
       return true;
     }
-
     foreach ($array as $a) {
       if (is_array($a)) {
         foreach ($a as $sub_a) {
@@ -2034,7 +2026,7 @@ class Easy_Meta_Box {
       $ext =  substr(strrchr($file['name'],'.'),1);
 
       if (!in_array($ext, (array)$allowed)){
-        $file['error'] = __("Sorry, you cannot upload this file type for this field.",'mmb');
+        $file['error'] = __('Sorry, you cannot upload this file type for this field.', 'ewpmb');
         return $file;
       }
 
@@ -2042,7 +2034,7 @@ class Easy_Meta_Box {
         if (strpos($key, $ext) || $key == $ext)
           return $file;
       }
-      $file['error'] = __("Sorry, you cannot upload this file type for this field.",'mmb');
+      $file['error'] = __('Sorry, you cannot upload this file type for this field.', 'ewpmb');
     }
     return $file;
   }
@@ -2082,8 +2074,7 @@ class Easy_Meta_Box {
    * @return void
    */
   public function load_textdomain(){
-    //In themes/plugins/mu-plugins directory
-    load_textdomain('mmb', dirname(__FILE__) . '/lang/' . get_locale() . '.mo');
+    load_textdomain('ewpmb', dirname(__FILE__) . '/locale/' . get_locale() . '.mo');
   }
 }
 endif;

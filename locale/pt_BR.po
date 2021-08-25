@@ -1,0 +1,88 @@
+# Easy WP Meta Box Class pot file.
+# Copyright (C) 2021 Paulino Michelazzo
+# This file is distributed under the same license as the Easy WP Meta Box Class package.
+# FIRST AUTHOR Paulino Michelazzo <michelazzo@me.com>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Easy WP Meta Box Class 1.0.0\n"
+"Report-Msgid-Bugs-To: michelazzo@me.com\n"
+"POT-Creation-Date: 2021-08-25 23:06+0200\n"
+"PO-Revision-Date: 2021-08-25 23:23+0200\n"
+"Language-Team: Paulino Michelazzo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.3\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: pt_BR\n"
+
+msgid "Add New Group"
+msgstr "Adicionar Novo Grupo"
+
+msgid "Remove"
+msgstr "Remover"
+
+msgid "Select a color"
+msgstr "Selecione uma cor"
+
+msgid "Select..."
+msgstr "Selecione…"
+
+msgid "Text Field"
+msgstr "Campo Texto"
+
+msgid "Number Field"
+msgstr "Campo Número"
+
+msgid "Date Field"
+msgstr "Campo Data"
+
+msgid "Textarea Field"
+msgstr "Campo Textarea"
+
+msgid "Select Field"
+msgstr "Campo Select"
+
+msgid "Radio Field"
+msgstr "Campo Radio"
+
+msgid "Image Field"
+msgstr "Campo Imagem"
+
+msgid "WYSIWYG Editor Field"
+msgstr "Campo Editor WYSIWYG"
+
+msgid "Taxonomy Field"
+msgstr "Campo Taxonomia"
+
+msgid "Repeater Field"
+msgstr "Campo Repetidor"
+
+msgid "Time Field"
+msgstr "Campo Hora"
+
+msgid "Code Editor Field"
+msgstr "Campo Editor de Código"
+
+msgid "Checkbox Field"
+msgstr "Campo Checkbox"
+
+msgid "Checkbox List Field"
+msgstr "Campo Lista de Checkbox"
+
+msgid "ColorPicker Field"
+msgstr "Campo ColorPicker"
+
+msgid "File Field"
+msgstr "Campo Arquivo"
+
+msgid "Posts Field"
+msgstr "Campo Posts"
+
+msgid "Conditional Field"
+msgstr "Campo Condicional"
+
+msgid "Sorry, you cannot upload this file type for this field."
+msgstr "Desculpe, mas você não pode enviar arquivos deste tipo neste campo."
