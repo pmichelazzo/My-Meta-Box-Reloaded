@@ -1,0 +1,200 @@
+/**
+ * Easy WP Meta Box Class CSS
+ *
+ * CSS used for the custom meta boxes and other form items.
+ *
+ * Copyright© 2021 Paulino Michelazzo (michelazzo@me.com)
+ */
+
+/* Common Rules */
+.main-div {
+  border: 1px solid #DDD;
+  padding: 10px;
+  margin: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  width: auto;
+  vertical-align: top;
+}
+
+.field-block-flex {
+  display: flex;
+  border: 1px solid #DDD;
+  margin-bottom: 5px;
+  align-items: center;
+  padding: 5px;
+  font-size: initial;
+}
+
+.block-left {flex: 0 0 30%;}
+.block-right{flex: 1}
+
+.field-block {
+  border: 1px solid #DDD;
+  margin-bottom: 5px;
+  align-items: center;
+  padding: 5px;
+  font-size: initial;
+}
+
+.add-button{
+  margin-bottom: 10px
+}
+
+.label{
+  color: black
+}
+
+.at-label {
+  padding-bottom: 10px;
+  width: auto;
+}
+.at-label-side {
+  width: auto;
+}
+
+.at-textarea {
+  width: 100%;
+}
+
+.at-radio-label {
+  padding-right: 10px;
+}
+
+.at-file-upload-label {
+  clear: both;
+  margin: 5px 0px 5px 1px;
+}
+
+table.repeater-table {
+  width: 100%;
+}
+
+/* Form Fields */
+.postbox .at-field input,
+.postbox .at-field textarea {
+  padding: 5px;
+  line-height: 18px;
+}
+
+.postbox .at-field input.at-radio{}
+.postbox .at-field input.at-color {
+  border: 0px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  margin-right: 10px;
+  min-width: 100px;
+}
+
+.at-field input:focus,
+.at-field textarea:focus {
+  background: #fffff8;
+}
+
+#wpcontent select.at-select {
+  height: 30px !important;
+  padding: 5px;
+  display: block;
+  min-width: 200px;
+}
+
+.desc-field {
+  color: #aaa;
+  font-style: italic;
+  margin: 5px 0 0 3px !important;
+  font-size: 13px;
+}
+
+.at-field .wp_themeSkin table.mceLayout {
+  border: 1px solid #DFDFDF;
+}
+
+#post-body .at-field .wp_themeSkin .mceStatusbar a.mceResize {
+  top: -25px
+}
+
+/* Uploaded Images */
+.at-images li {
+  margin: 5px 10px 0px 0;
+  float: left;
+  width: 150px;
+  height: 150px;
+  text-align: center;
+  border: 3px solid #ccc;
+  cursor: move;
+  position: relative;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+.at-images img {
+  width: 150px;
+  height: 150px;
+}
+
+.at-images a {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  color: #fff;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.at-images .at-delete-file img {
+  width: 16px;
+  height: 16px;
+}
+
+/* Upload Button */
+.at-upload-button,
+.at-add-file {
+  float: left;
+  clear: both;
+  margin-top: 10px;
+}
+
+/* Time Picker */
+.ui-timepicker-div {
+  font-size: 0.9em
+}
+.ui-timepicker-div .ui-widget-header {
+  margin-bottom: 8px
+}
+.ui-timepicker-div dl {
+  text-align: left
+}
+.ui-timepicker-div dl dt {
+  height: 25px
+}
+.ui-timepicker-div dl dd {
+  margin: -25px 0 10px 65px
+}
+.ui-timepicker-div td {
+  font-size: 90%
+}
+
+/* Repeater Block inline */
+.at-inline label {
+  font-size: 12px !important;
+}
+.at-inline textarea {
+  height: 130px;
+  width: 200px;
+}
+
+/* Code Editor */
+.CodeMirror{
+  background-color: #fff
+}
+
+td.at-field .simplePanelImagePreview img{
+  max-width: 100% !important;
+  height: auto;
+}
+
+.conditinal_container table {
+  width: 100% !important;
+  max-width: 100% !important;
+}
