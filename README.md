@@ -3,9 +3,9 @@
 ## What is this?
 This class is used to create meta boxes with fields inside of any WordPress
 content type (custom or not) without the hard job to code the meta boxes and
-fields. to do that, you just need to call the class, set some parameters for
-the meta boxes, write the fields passing some parameters and, that's it, the
-job is done!
+fields and without dependencies from external code/plugins. To use, you just
+need to call the class, set some parameters for the meta boxes, write the fields
+passing some parameters and the job is done!
 
 ## Why another class/plugin/code/whatever to handle meta boxes
 Well, why do we have so many different cars models? Why we have so many different
@@ -15,7 +15,16 @@ There's a lot of options to work with meta boxes around. The WordPress ecosystem
 is huge and every day we find a new code to solve WordPress problems (IMHO, the
 WP content types is one of the worst).
 
-This class solved a need that I had and I decide to share. Feel free to use it
+But, there is a big difference between this class and plugins that you can find
+on the web: **dependencies**. In other words, you don't need to install another
+plugin to create meta boxes with fields and your custom content type **is not**
+dependent of anything else. On this way, you can share your custom content type
+or plugin for someone and everything you need is here: datepickers, colorpickers,
+fields, nice selection boxes, etc.
+No additional code, no additional plugins, nothing. Just a class you call from
+your code. That's it.
+
+This class solved a problem that I had and I decide to share. Feel free to use it
 or, perhaps, find a better or beautiful option. It's up to you :)
 
 ## The history behind the code
@@ -33,7 +42,7 @@ I love documentation (inside and outside the code). You don't need to search the
 code to find parameters or something else. Goes to the [wiki](https://github.com/pmichelazzo/easy-wp-metabox/wiki)
 and you'll find everything there :)
 
-## To Do, new features and issues
+## To do, new features and issues
 You can check the plans for this code on the [Project dashboard](https://github.com/pmichelazzo/easy-wp-metabox/projects/1).
 I always listen the user's needs and try to do my best to add new features in
 the code.
@@ -43,5 +52,5 @@ directly by [email](michelazzo@me.com).
 
 Have fun!
 
-*Release: 1.0*<br/>
+*Last main release: 1.0*<br/>
 *Date: 01 September 2021*
