@@ -370,6 +370,9 @@ class Easy_Meta_Box {
     print '<div class="add-button"><button type="button" class="repeater-add-btn">Adicionar novo grupo</button></div>';
 
     $submetas = get_post_meta($post->ID, $field['id'], true);
+    print '<pre>';
+    print_r($submetas);
+    print '</pre>';
     // The saved data begins here.
     $c = 0;
     if (is_array($submetas) && count($submetas) > 0) {
@@ -423,7 +426,7 @@ class Easy_Meta_Box {
       print '</div>';
     }
     $this->show_field_end($field);
-    print '<script>jQuery(function($){$("#repeater").createRepeater({showFirstItemToDefault: true,});});</script>';
+    print '<script>jQuery(function($){$("#repeater").createRepeater({showFirstItemToDefault:true});});</script>';
   }
 
   /**
@@ -508,7 +511,7 @@ class Easy_Meta_Box {
     ];
     // Print the field.
     $this->show_field_begin($field);
-    print '<input type="text" ' . implode(' ', $attributes) . '/>';
+    print '<input type="text" ' . implode(' ', $attributes) . '>';
     $this->show_field_end($field);
   }
 
@@ -522,13 +525,19 @@ class Easy_Meta_Box {
    * @param string $data
    */
   public function show_field_number($field, $data) {
+    // Prepare the field attributes.
+    $attributes = [
+      'id' => 'id="' . $field['id'] . '"',
+      'data' => 'data-name="' . $field['id'] . '"',
+      'min' => 'min="' . $field['min'] . '"',
+      'max' => 'max="' . $field['max'] . '"',
+      'step' => 'step="' . $field['step'] . '"',
+      'value' => 'value="' . $data . '"',
+      'class' => $this->field_classes($field),
+    ];
+    // Print the field.
     $this->show_field_begin($field);
-    $id = $field['id'];
-    $min = (isset($field['min'])) ? 'min="' . $field['min'] . '"' : '';
-    $max = (isset($field['max'])) ? 'max="' . $field['max'] . '"' : '';
-    $step = ($field['step'] != 1) ? 'step="' . $field['step'] . '"' : '';
-    $class = $this->field_classes($field);
-    print '<input type="number"' . $class . ' name="' . $id . '" id="' . $id . '" value="' . $data . '"' . $step . $min . $max .'/>';
+    print '<input type="number" ' . implode(' ', $attributes) . '>';
     $this->show_field_end($field);
   }
 
@@ -1315,7 +1324,7 @@ class Easy_Meta_Box {
       'name' => 'Number Field',
       'desc' => '',
       'std' => 0,
-      'min' => '0',
+      'min' => 0,
       'max' => '',
       'step' => 1,
       'side' => 0,
