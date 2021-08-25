@@ -127,17 +127,17 @@ class Easy_Meta_Box {
     $this->add_missed_values();
     if (isset($meta_box['use_with_theme'])) {
       if ($meta_box['use_with_theme'] === true) {
-        $this->SelfPath = get_stylesheet_directory_uri() . '/meta-box-class';
+        $this->SelfPath = get_stylesheet_directory_uri() . '/easy-wp-metabox';
       }
       elseif ($meta_box['use_with_theme'] === false) {
-        $this->SelfPath = plugins_url('meta-box-class', plugin_basename(dirname(__FILE__)));
+        $this->SelfPath = plugins_url('easy-wp-metabox', plugin_basename(dirname(__FILE__)));
       }
       else {
         $this->SelfPath = $meta_box['use_with_theme'];
       }
     }
     else {
-      $this->SelfPath = plugins_url('meta-box-class', plugin_basename(dirname(__FILE__)));
+      $this->SelfPath = plugins_url('easy-wp-metabox', plugin_basename(dirname(__FILE__)));
     }
 
     // Add metaboxes
