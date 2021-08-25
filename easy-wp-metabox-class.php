@@ -958,11 +958,11 @@ class Easy_Meta_Box {
   public function save($post_id) {
     global $post_type;
     $post_type_object = get_post_type_object($post_type);
-    if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )                      // Check Autosave
-    || ( ! isset( $_POST['post_ID'] ) || $post_id != $_POST['post_ID'] )        // Check Revision
-    || ( ! in_array( $post_type, $this->_meta_box['pages'] ) )                  // Check if current post type is supported.
-    || ( ! check_admin_referer( basename( __FILE__ ), 'at_meta_box_nonce') )    // Check nonce - Security
-    || ( ! current_user_can( $post_type_object->cap->edit_post, $post_id ) ) )  // Check permission
+    if ((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) // Check Autosave
+    || (!isset($_POST['post_ID']) || $post_id != $_POST['post_ID']) // Check Revision
+    || (!in_array($post_type, $this->_meta_box['pages'])) // Check if current post type is supported.
+    || (!check_admin_referer(basename(__FILE__), 'easy_meta_box_nonce')) // Check nonce - Security
+    || (!current_user_can($post_type_object->cap->edit_post, $post_id))) // Check permission
     {
       return $post_id;
     }
