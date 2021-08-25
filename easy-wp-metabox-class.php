@@ -163,9 +163,9 @@ class Easy_Meta_Box {
     global $typenow;
     if (in_array($typenow,$this->_meta_box['pages']) && $this->is_edit_page()) {
       // Enqueue Meta Box Style
-      wp_enqueue_style('at-meta-box', $plugin_path . '/css/meta-box.css');
+      wp_enqueue_style('easy-wp-metabox', $plugin_path . '/css/easy-wp-metabox.css');
       // Enqueue Meta Box Scripts
-      wp_enqueue_script('at-meta-box', $plugin_path . '/js/meta-box.js', ['jquery'], null, true);
+      wp_enqueue_script('easy-wp-metabox', $plugin_path . '/js/easy-wp-metabox.js', ['jquery'], null, true);
       wp_enqueue_script('repeater', $plugin_path . '/js/repeater.js', ['jquery'], null, true);
       // Make upload feature work event when custom post type doesn't support 'editor'
       if ($this->has_field('image') || $this->has_field('file')) {
@@ -370,9 +370,6 @@ class Easy_Meta_Box {
     print '<div class="add-button"><button type="button" class="repeater-add-btn">Adicionar novo grupo</button></div>';
 
     $submetas = get_post_meta($post->ID, $field['id'], true);
-    print '<pre>';
-    print_r($submetas);
-    print '</pre>';
     // The saved data begins here.
     $c = 0;
     if (is_array($submetas) && count($submetas) > 0) {
