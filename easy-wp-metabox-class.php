@@ -163,9 +163,9 @@ class Easy_Meta_Box {
     global $typenow;
     if (in_array($typenow,$this->_meta_box['pages']) && $this->is_edit_page()) {
       // Enqueue Meta Box Style
-      wp_enqueue_style('at-meta-box', $plugin_path . '/css/meta-box.css');
+      wp_enqueue_style('easy-wp-metabox', $plugin_path . '/css/easy-wp-metabox.css');
       // Enqueue Meta Box Scripts
-      wp_enqueue_script('at-meta-box', $plugin_path . '/js/meta-box.js', ['jquery'], null, true);
+      wp_enqueue_script('easy-wp-metabox', $plugin_path . '/js/easy-wp-metabox.js', ['jquery'], null, true);
       wp_enqueue_script('repeater', $plugin_path . '/js/repeater.js', ['jquery'], null, true);
       // Make upload feature work event when custom post type doesn't support 'editor'
       if ($this->has_field('image') || $this->has_field('file')) {
@@ -423,7 +423,7 @@ class Easy_Meta_Box {
       print '</div>';
     }
     $this->show_field_end($field);
-    print '<script>jQuery(function($){$("#repeater").createRepeater({showFirstItemToDefault: true,});});</script>';
+    print '<script>jQuery(function($){$("#repeater").createRepeater({showFirstItemToDefault:true});});</script>';
   }
 
   /**
@@ -508,7 +508,7 @@ class Easy_Meta_Box {
     ];
     // Print the field.
     $this->show_field_begin($field);
-    print '<input type="text" ' . implode(' ', $attributes) . '/>';
+    print '<input type="text" ' . implode(' ', $attributes) . '>';
     $this->show_field_end($field);
   }
 
@@ -522,13 +522,19 @@ class Easy_Meta_Box {
    * @param string $data
    */
   public function show_field_number($field, $data) {
+    // Prepare the field attributes.
+    $attributes = [
+      'id' => 'id="' . $field['id'] . '"',
+      'data' => 'data-name="' . $field['id'] . '"',
+      'min' => 'min="' . $field['min'] . '"',
+      'max' => 'max="' . $field['max'] . '"',
+      'step' => 'step="' . $field['step'] . '"',
+      'value' => 'value="' . $data . '"',
+      'class' => $this->field_classes($field),
+    ];
+    // Print the field.
     $this->show_field_begin($field);
-    $id = $field['id'];
-    $min = (isset($field['min'])) ? 'min="' . $field['min'] . '"' : '';
-    $max = (isset($field['max'])) ? 'max="' . $field['max'] . '"' : '';
-    $step = ($field['step'] != 1) ? 'step="' . $field['step'] . '"' : '';
-    $class = $this->field_classes($field);
-    print '<input type="number"' . $class . ' name="' . $id . '" id="' . $id . '" value="' . $data . '"' . $step . $min . $max .'/>';
+    print '<input type="number" ' . implode(' ', $attributes) . '>';
     $this->show_field_end($field);
   }
 
@@ -958,11 +964,11 @@ class Easy_Meta_Box {
   public function save($post_id) {
     global $post_type;
     $post_type_object = get_post_type_object($post_type);
-    if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )                      // Check Autosave
-    || ( ! isset( $_POST['post_ID'] ) || $post_id != $_POST['post_ID'] )        // Check Revision
-    || ( ! in_array( $post_type, $this->_meta_box['pages'] ) )                  // Check if current post type is supported.
-    || ( ! check_admin_referer( basename( __FILE__ ), 'at_meta_box_nonce') )    // Check nonce - Security
-    || ( ! current_user_can( $post_type_object->cap->edit_post, $post_id ) ) )  // Check permission
+    if ((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) // Check Autosave
+    || (!isset($_POST['post_ID']) || $post_id != $_POST['post_ID']) // Check Revision
+    || (!in_array($post_type, $this->_meta_box['pages'])) // Check if current post type is supported.
+    || (!check_admin_referer(basename(__FILE__), 'easy_meta_box_nonce')) // Check nonce - Security
+    || (!current_user_can($post_type_object->cap->edit_post, $post_id))) // Check permission
     {
       return $post_id;
     }
@@ -1315,7 +1321,7 @@ class Easy_Meta_Box {
       'name' => 'Number Field',
       'desc' => '',
       'std' => 0,
-      'min' => '0',
+      'min' => 0,
       'max' => '',
       'step' => 1,
       'side' => 0,
