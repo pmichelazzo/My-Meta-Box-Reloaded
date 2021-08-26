@@ -22,7 +22,7 @@
  * @author Paulino Michelazzo (michelazzo@me.com)
  * @link https://github.com/pmichelazzo/easy-wp-metabox
  *
- * @license GNU General Public LIcense v3.0 - license.txt
+ * @license GNU General Public License v3.0 - LICENSE
  * @package Easy WP Metabox Class
  */
 
@@ -444,25 +444,159 @@ class EasyMetaBox {
   }
 
   /**
-   * Show text field.
+   * Show checkbox field.
    *
    * @since 1.0
    * @access public
    * @param array $field
    * @param string $data
    */
-  public function show_field_text($field, $data) {
+  public function show_field_checkbox($field, $data) {
+    $this->show_field_begin($field);
+    print "<input type='checkbox' ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='rw-checkbox".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}'" . checked(!empty($data), true, false) . " />";
+    $this->show_field_end($field);
+  }
+
+  /**
+   * Show code editor field.
+   *
+   * @since 1.0
+   * @access public
+   * @param array $field
+   * @param string $data
+   */
+  public function show_field_code($field, $data) {
+    $this->show_field_begin($field);
+    print "<textarea class='code_text" . (isset($field['class']) ? ' ' . $field['class'] : '' ) . "' name='{$field['id']}' id='{$field['id']}' data-lang='{$field['syntax']}' ".( isset($field['style'])? "style='{$field['style']}'" : '' )." data-theme='{$field['theme']}'>{$data}</textarea>";
+    $this->show_field_end($field);
+  }
+
+  /**
+   * Show color field.
+   *
+   * @since 1.0
+   * @access public
+   * @param array $field
+   * @param string $data
+   */
+  public function show_field_color($field, $data) {
+    if (empty($data)) {
+      $data = '#';
+    }
+    $this->show_field_begin($field);
+    if (wp_style_is('wp-color-picker', 'registered')) { // Iris color picker since 3.5
+      print "<input class='at-color-iris".(isset($field['class'])? " {$field['class']}": "")."' type='text' name='{$field['id']}' id='{$field['id']}' value='{$data}' size='8' />";
+    }
+    else {
+      print "<input class='at-color".(isset($field['class'])? " {$field['class']}": "")."' type='text' name='{$field['id']}' id='{$field['id']}' value='{$data}' size='8' />";
+      print "<input type='button' class='at-color-select button' rel='{$field['id']}' value='" . __( 'Select a color', 'ewpmb') . "'/>";
+      print "<div style='display:none' class='at-color-picker' rel='{$field['id']}'></div>";
+    }
+    $this->show_field_end($field);
+  }
+
+  /**
+   * Show date field.
+   *
+   * @since 1.0
+   * @access public
+   * @param array $field
+   * @param string $data
+   */
+  public function show_field_date($field, $data) {
+    $this->show_field_begin($field);
+    $id = $field['id'];
+    $class = $this->field_classes($field);
+    print '<input type="text"' . $class . ' name="' . $id . '" id="' . $id . '" value="' . $data . '" rel="' . $field['format'] . '" />';
+    $this->show_field_end($field);
+  }
+
+  /**
+   * Show file field.
+   *
+   * @since 1.0
+   * @access public
+   * @param array $field
+   * @param string $data
+   */
+  public function show_field_file($field, $data) {
+    wp_enqueue_media();
+    $this->show_field_begin($field);
+    $std = isset($field['std']) ? $field['std'] : ['id' => '', 'url' => ''];
+    $multiple = isset($field['multiple']) ? $field['multiple'] : false;
+    $multiple = ($multiple) ? "multiFile '" : "";
+    $name = esc_attr($field['id']);
+    $value = isset($data['id']) ? $data : $std;
+    $has_file = (empty($value['url'])) ? false : true;
+    $type = isset($field['mime_type']) ? $field['mime_type'] : '';
+    $ext = isset($field['ext']) ? $field['ext'] : '';
+    $type = (is_array($type) ? implode("|",$type) : $type);
+    $ext = (is_array($ext) ? implode("|",$ext) : $ext);
+    $id = $field['id'];
+    $li = ($has_file) ? "<li><a href='{$value['url']}' target='_blank'>{$value['url']}</a></li>" : "";
+    print "<span class='simplePanelfilePreview'><ul>{$li}</ul></span>";
+    print "<input type='hidden' name='{$name}[id]' value='{$value['id']}'/>";
+    print "<input type='hidden' name='{$name}[url]' value='{$value['url']}'/>";
+    if ($has_file) {
+      print '<input type="button" class="' . $multiple . ' button simplePanelfileUploadclear" id="' . $id . '" value="' . __('Remove File', 'ewpmb') . '" data-mime_type="' . $type . '" data-ext="' . $ext . '">';
+    }
+    else {
+      print '<input type="button" class="' . $multiple . ' button simplePanelfileUpload" id="' . $id . '" value="' . __('Upload File', 'ewpmb') . '" data-mime_type="' . $type . '" data-ext="' . $ext . '">';
+    }
+    $this->show_field_end($field);
+  }
+
+  /**
+   * Show hidden field.
+   *
+   * @since 1.0
+   * @access public
+   * @param array $field
+   * @param string $data
+   */
+  public function show_field_hidden($field, $data) {
     // Prepare the field attributes.
     $attributes = [
       'id' => 'id="' . $field['id'] . '"',
       'data' => 'data-name="' . $field['id'] . '"',
-      'size' => 'size="' . $field['size'] . '"',
       'value' => 'value="' . $data . '"',
       'class' => $this->field_classes($field),
     ];
-    // Print the field.
+    print '<input type="hidden"' . implode(' ', $attributes) . '>';
+  }
+
+  /**
+   * Show image field.
+   *
+   * @since 1.0
+   * @access public
+   * @param array $field
+   * @param array $data
+   */
+  public function show_field_image($field, $data) {
+    wp_enqueue_media();
     $this->show_field_begin($field);
-    print '<input type="text" ' . implode(' ', $attributes) . '>';
+    $std = isset($field['std']) ? $field['std'] : ['id' => '', 'url' => ''];
+    $name = esc_attr($field['id']);
+    $value = isset($data['id']) ? $data : $std;
+    $value['url'] = isset($data['src']) ? $data['src'] : $value['url']; // backwards capability
+    $has_image = empty($value['url']) ? false : true;
+    $w = isset($field['width']) ? $field['width'] : 'auto';
+    $h = isset($field['height']) ? $field['height'] : 'auto';
+    $PreviewStyle = "style='width: $w; height: $h;" . ((!$has_image) ? "display: none;'" : "'");
+    $id = $field['id'];
+    $multiple = isset($field['multiple']) ? $field['multiple'] : false;
+    $multiple = ($multiple) ? "multiFile " : "";
+
+    print "<span class='simplePanelImagePreview'><img {$PreviewStyle} src='{$value['url']}'><br/></span>";
+    print "<input type='hidden' name='{$name}[id]' value='{$value['id']}'/>";
+    print "<input type='hidden' name='{$name}[url]' value='{$value['url']}'/>";
+    if ($has_image) {
+      print '<input class="' . $multiple . ' button simplePanelimageUploadclear" id="' . $id . '" value="' . __('Remove Image', 'ewpmb') . '" type="button">';
+    }
+    else {
+      print '<input class="' . $multiple . ' button simplePanelimageUpload" id="' . $id . '" value="' . __('Upload Image', 'ewpmb') . '" type="button">';
+    }
     $this->show_field_end($field);
   }
 
@@ -492,34 +626,55 @@ class EasyMetaBox {
   }
 
   /**
-   * Show date field.
+   * Show paragraph field.
    *
    * @since 1.0
    * @access public
    * @param array $field
-   * @param string $data
    */
-  public function show_field_date($field, $data) {
+  public function show_field_paragraph($field) {
     $this->show_field_begin($field);
-    $id = $field['id'];
-    $class = $this->field_classes($field);
-    print '<input type="text"' . $class . ' name="' . $id . '" id="' . $id . '" value="' . $data . '" rel="' . $field['format'] . '" />';
+    print '<p>' . $field['value'] . '</p>';
     $this->show_field_end($field);
   }
 
   /**
-   * Show textarea field.
+   * Show radio field.
    *
    * @since 1.0
    * @access public
    * @param array $field
    * @param string $data
    */
-  public function show_field_textarea($field, $data) {
+  public function show_field_radio($field, $data) {
+    if (!is_array($data)) {
+      $data = (array)$data;
+    }
     $this->show_field_begin($field);
-    $id = $field['id'];
-    $class = $this->field_classes($field);
-    print '<textarea ' . $class . ' name="' . $id . '" id="' . $id . '" cols="60" rows="10">' . $data . '</textarea>';
+      foreach ( $field['options'] as $key => $value ) {
+        print "<input type='radio' ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='at-radio".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' value='{$key}'" . checked( in_array( $key, $data ), true, false ) . " /> <span class='at-radio-label'>{$value}</span>";
+      }
+    $this->show_field_end($field);
+  }
+
+  /**
+   * Show select field.
+   *
+   * @since 1.0
+   * @access public
+   * @param array $field
+   * @param string $data
+   */
+  public function show_field_select($field, $data) {
+    if (!is_array($data)) {
+      $data = (array)$data;
+    }
+    $this->show_field_begin($field);
+    print "<select " . (isset($field['style']) ? "style='{$field['style']}' " : '' ) . " class='at-select" . (isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}" . ( $field['multiple'] ? "[]' id='{$field['id']}' multiple='multiple'" : "'" ) . ">";
+    foreach ($field['options'] as $key => $value) {
+      print "<option value='{$key}'" . selected(in_array($key, $data), true, false) . ">{$value}</option>";
+    }
+    print "</select>";
     $this->show_field_end($field);
   }
 
@@ -563,6 +718,45 @@ class EasyMetaBox {
   }
 
   /**
+   * Show text field.
+   *
+   * @since 1.0
+   * @access public
+   * @param array $field
+   * @param string $data
+   */
+  public function show_field_text($field, $data) {
+    // Prepare the field attributes.
+    $attributes = [
+      'id' => 'id="' . $field['id'] . '"',
+      'data' => 'data-name="' . $field['id'] . '"',
+      'size' => 'size="' . $field['size'] . '"',
+      'value' => 'value="' . $data . '"',
+      'class' => $this->field_classes($field),
+    ];
+    // Print the field.
+    $this->show_field_begin($field);
+    print '<input type="text" ' . implode(' ', $attributes) . '>';
+    $this->show_field_end($field);
+  }
+
+  /**
+   * Show textarea field.
+   *
+   * @since 1.0
+   * @access public
+   * @param array $field
+   * @param string $data
+   */
+  public function show_field_textarea($field, $data) {
+    $this->show_field_begin($field);
+    $id = $field['id'];
+    $class = $this->field_classes($field);
+    print '<textarea ' . $class . ' name="' . $id . '" id="' . $id . '" cols="60" rows="10">' . $data . '</textarea>';
+    $this->show_field_end($field);
+  }
+
+  /**
    * Show wysiwig field.
    *
    * @since 1.0
@@ -580,193 +774,6 @@ class EasyMetaBox {
       $settings['editor_class'] = 'at-wysiwyg' . (isset($field['class']) ? ' ' . $field['class'] : '');
       $id = str_replace("_", "", $this->stripNumeric(strtolower($field['id'])));
       wp_editor(html_entity_decode($data), $id, $settings);
-    }
-    $this->show_field_end($field);
-  }
-
-  /**
-   * Show code editor field.
-   *
-   * @since 1.0
-   * @access public
-   * @param array $field
-   * @param string $data
-   */
-  public function show_field_code($field, $data) {
-    $this->show_field_begin($field);
-    print "<textarea class='code_text" . (isset($field['class']) ? ' ' . $field['class'] : '' ) . "' name='{$field['id']}' id='{$field['id']}' data-lang='{$field['syntax']}' ".( isset($field['style'])? "style='{$field['style']}'" : '' )." data-theme='{$field['theme']}'>{$data}</textarea>";
-    $this->show_field_end($field);
-  }
-
-  /**
-   * Show hidden field.
-   *
-   * @since 1.0
-   * @access public
-   * @param array $field
-   * @param string $data
-   */
-  public function show_field_hidden($field, $data) {
-    print "<input type='hidden' " . (isset($field['style']) ? "style='{$field['style']}' " : '') . " class='at-text" . (isset($field['class']) ? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}' value='{$data}'/>";
-  }
-
-  /**
-   * Show paragraph field.
-   *
-   * @since 1.0
-   * @access public
-   * @param array $field
-   */
-  public function show_field_paragraph($field) {
-    $this->show_field_begin($field);
-    print '<p>' . $field['value'] . '</p>';
-    $this->show_field_end($field);
-  }
-
-  /**
-   * Show select field.
-   *
-   * @since 1.0
-   * @access public
-   * @param array $field
-   * @param string $data
-   */
-  public function show_field_select($field, $data) {
-    if (!is_array($data)) {
-      $data = (array)$data;
-    }
-    $this->show_field_begin($field);
-    print "<select " . (isset($field['style']) ? "style='{$field['style']}' " : '' ) . " class='at-select" . (isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}" . ( $field['multiple'] ? "[]' id='{$field['id']}' multiple='multiple'" : "'" ) . ">";
-    foreach ($field['options'] as $key => $value) {
-      print "<option value='{$key}'" . selected(in_array($key, $data), true, false) . ">{$value}</option>";
-    }
-    print "</select>";
-    $this->show_field_end($field);
-  }
-
-  /**
-   * Show radio field.
-   *
-   * @since 1.0
-   * @access public
-   * @param array $field
-   * @param string $data
-   */
-  public function show_field_radio($field, $data) {
-    if (!is_array($data)) {
-      $data = (array)$data;
-    }
-    $this->show_field_begin($field);
-      foreach ( $field['options'] as $key => $value ) {
-        print "<input type='radio' ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='at-radio".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' value='{$key}'" . checked( in_array( $key, $data ), true, false ) . " /> <span class='at-radio-label'>{$value}</span>";
-      }
-    $this->show_field_end($field);
-  }
-
-  /**
-   * Show checkbox field.
-   *
-   * @since 1.0
-   * @access public
-   * @param array $field
-   * @param string $data
-   */
-  public function show_field_checkbox($field, $data) {
-    $this->show_field_begin($field);
-    print "<input type='checkbox' ".( isset($field['style'])? "style='{$field['style']}' " : '' )." class='rw-checkbox".( isset($field['class'])? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}'" . checked(!empty($data), true, false) . " />";
-    $this->show_field_end($field);
-  }
-
-  /**
-   * Show file field.
-   *
-   * @since 1.0
-   * @access public
-   * @param array $field
-   * @param string $data
-   */
-  public function show_field_file($field, $data) {
-    wp_enqueue_media();
-    $this->show_field_begin($field);
-    $std = isset($field['std']) ? $field['std'] : ['id' => '', 'url' => ''];
-    $multiple = isset($field['multiple']) ? $field['multiple'] : false;
-    $multiple = ($multiple) ? "multiFile '" : "";
-    $name = esc_attr($field['id']);
-    $value = isset($data['id']) ? $data : $std;
-    $has_file = (empty($value['url'])) ? false : true;
-    $type = isset($field['mime_type']) ? $field['mime_type'] : '';
-    $ext = isset($field['ext']) ? $field['ext'] : '';
-    $type = (is_array($type) ? implode("|",$type) : $type);
-    $ext = (is_array($ext) ? implode("|",$ext) : $ext);
-    $id = $field['id'];
-    $li = ($has_file) ? "<li><a href='{$value['url']}' target='_blank'>{$value['url']}</a></li>" : "";
-    print "<span class='simplePanelfilePreview'><ul>{$li}</ul></span>";
-    print "<input type='hidden' name='{$name}[id]' value='{$value['id']}'/>";
-    print "<input type='hidden' name='{$name}[url]' value='{$value['url']}'/>";
-    if ($has_file) {
-      print '<input type="button" class="' . $multiple . ' button simplePanelfileUploadclear" id="' . $id . '" value="' . __('Remove File', 'ewpmb') . '" data-mime_type="' . $type . '" data-ext="' . $ext . '">';
-    }
-    else {
-      print '<input type="button" class="' . $multiple . ' button simplePanelfileUpload" id="' . $id . '" value="' . __('Upload File', 'ewpmb') . '" data-mime_type="' . $type . '" data-ext="' . $ext . '">';
-    }
-    $this->show_field_end($field);
-  }
-
-  /**
-   * Show image field.
-   *
-   * @since 1.0
-   * @access public
-   * @param array $field
-   * @param array $data
-   */
-  public function show_field_image($field, $data) {
-    wp_enqueue_media();
-    $this->show_field_begin($field);
-    $std = isset($field['std']) ? $field['std'] : ['id' => '', 'url' => ''];
-    $name = esc_attr($field['id']);
-    $value = isset($data['id']) ? $data : $std;
-    $value['url'] = isset($data['src']) ? $data['src'] : $value['url']; // backwards capability
-    $has_image = empty($value['url']) ? false : true;
-    $w = isset($field['width']) ? $field['width'] : 'auto';
-    $h = isset($field['height']) ? $field['height'] : 'auto';
-    $PreviewStyle = "style='width: $w; height: $h;" . ((!$has_image) ? "display: none;'" : "'");
-    $id = $field['id'];
-    $multiple = isset($field['multiple']) ? $field['multiple'] : false;
-    $multiple = ($multiple) ? "multiFile " : "";
-
-    print "<span class='simplePanelImagePreview'><img {$PreviewStyle} src='{$value['url']}'><br/></span>";
-    print "<input type='hidden' name='{$name}[id]' value='{$value['id']}'/>";
-    print "<input type='hidden' name='{$name}[url]' value='{$value['url']}'/>";
-    if ($has_image) {
-      print '<input class="' . $multiple . ' button simplePanelimageUploadclear" id="' . $id . '" value="' . __('Remove Image', 'ewpmb') . '" type="button">';
-    }
-    else {
-      print '<input class="' . $multiple . ' button simplePanelimageUpload" id="' . $id . '" value="' . __('Upload Image', 'ewpmb') . '" type="button">';
-    }
-    $this->show_field_end($field);
-  }
-
-  /**
-   * Show color field.
-   *
-   * @since 1.0
-   * @access public
-   * @param array $field
-   * @param string $data
-   */
-  public function show_field_color($field, $data) {
-    if (empty($data)) {
-      $data = '#';
-    }
-    $this->show_field_begin($field);
-    if (wp_style_is('wp-color-picker', 'registered')) { // Iris color picker since 3.5
-      print "<input class='at-color-iris".(isset($field['class'])? " {$field['class']}": "")."' type='text' name='{$field['id']}' id='{$field['id']}' value='{$data}' size='8' />";
-    }
-    else {
-      print "<input class='at-color".(isset($field['class'])? " {$field['class']}": "")."' type='text' name='{$field['id']}' id='{$field['id']}' value='{$data}' size='8' />";
-      print "<input type='button' class='at-color-select button' rel='{$field['id']}' value='" . __( 'Select a color', 'ewpmb') . "'/>";
-      print "<div style='display:none' class='at-color-picker' rel='{$field['id']}'></div>";
     }
     $this->show_field_end($field);
   }
@@ -1185,6 +1192,81 @@ class EasyMetaBox {
   }
 
   /**
+   *  Add checkbox field.
+   * 
+   * @since 1.0
+   * @access public
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'std' => default value, string optional
+   *   'validate_func' => validate function, string optional
+   * @param bool $repeater Is this a field inside a repeater?
+   */
+  public function addCheckbox($id, $args, $repeater = false) {
+    $new_field = [
+      'type' => 'checkbox',
+      'id' => $id,
+      'std' => '',
+      'desc' => '',
+      'style' => '',
+      'name' => __('Checkbox Field', 'ewpmb'),
+    ];
+    $new_field = array_merge($new_field, $args);
+    if (false === $repeater) {
+      $this->_fields[] = $new_field;
+    }
+    else {
+      return $new_field;
+    }
+  }
+
+  /**
+   * Add date field.
+   * 
+   * @since 1.0
+   * @access public
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'desc' => The description behind the field, optional string
+   *   'std' => The default value, optional string
+   *   'min' => The minimum date value, optional date formatted string
+   *   'max' => The maximum date value, optional date formatted string
+   *   'format' => The date format, optional. Default "dd/mm/yy".
+   *   'step' => The step value, optional integer/string
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
+   * @param bool $repeater Is this a field inside a repeater?
+   * 
+   * @see Date formats: http://goo.gl/Wcwxn
+   */
+  public function addDate($id, $args, $repeater = false) {
+    $new_field = [
+      'id' => $id,
+      'type' => 'date',
+      'name' => __('Date Field', 'ewpmb'),
+      'desc' => '',
+      'format' => 'dd/mm/yy',
+      'std' => '',
+      'min' => '',
+      'max' => '',
+      'step' => '',
+      'side' => 0,
+      'class' => '',
+    ];
+    $new_field = array_merge($new_field, $args);
+    if (false === $repeater) {
+      $this->_fields[] = $new_field;
+    }
+    else {
+      return $new_field;
+    }
+  }
+
+  /**
    * Add text field.
    * 
    * @since 1.0
@@ -1249,50 +1331,6 @@ class EasyMetaBox {
       'min' => 0,
       'max' => '',
       'step' => 1,
-      'side' => 0,
-      'class' => '',
-    ];
-    $new_field = array_merge($new_field, $args);
-    if (false === $repeater) {
-      $this->_fields[] = $new_field;
-    }
-    else {
-      return $new_field;
-    }
-  }
-
-  /**
-   * Add date field.
-   * 
-   * @since 1.0
-   * @access public
-   * @param string $id
-   * @param mixed|array $args
-   *   'name' => The label title, optional string
-   *   'desc' => The description behind the field, optional string
-   *   'std' => The default value, optional string
-   *   'min' => The minimum date value, optional date formatted string
-   *   'max' => The maximum date value, optional date formatted string
-   *   'format' => The date format, optional. Default "dd/mm/yy".
-   *   'step' => The step value, optional integer/string
-   *   'side' => If the field is displayed side by side with the title, optional integer/string
-   *   'class' => Classes names to be added on the field, optional string
-   *   'validate_func' => Validate function, optional string
-   * @param bool $repeater Is this a field inside a repeater?
-   * 
-   * @see Date formats: http://goo.gl/Wcwxn
-   */
-  public function addDate($id, $args, $repeater = false) {
-    $new_field = [
-      'id' => $id,
-      'type' => 'date',
-      'name' => __('Date Field', 'ewpmb'),
-      'desc' => '',
-      'format' => 'dd/mm/yy',
-      'std' => '',
-      'min' => '',
-      'max' => '',
-      'step' => '',
       'side' => 0,
       'class' => '',
     ];
@@ -1651,7 +1689,7 @@ class EasyMetaBox {
       'std' => '',
       'desc' => '',
       'style' =>'',
-      'name' => __('Text Field', 'ewpmb'),
+      'name' => __('Hidden Field', 'ewpmb'),
     ];
     $new_field = array_merge($new_field, $args);
     if (false === $repeater) {
@@ -1676,37 +1714,6 @@ class EasyMetaBox {
       'type' => 'paragraph',
       'id' => $id,
       'value' => ''
-    ];
-    $new_field = array_merge($new_field, $args);
-    if (false === $repeater) {
-      $this->_fields[] = $new_field;
-    }
-    else {
-      return $new_field;
-    }
-  }
-
-  /**
-   *  Add checkbox field.
-   * 
-   * @since 1.0
-   * @access public
-   * @param string $id
-   * @param mixed|array $args
-   *   'name' => field name/label string optional
-   *   'desc' => field description, string optional
-   *   'std' => default value, string optional
-   *   'validate_func' => validate function, string optional
-   * @param bool $repeater Is this a field inside a repeater?
-   */
-  public function addCheckbox($id, $args, $repeater = false) {
-    $new_field = [
-      'type' => 'checkbox',
-      'id' => $id,
-      'std' => '',
-      'desc' => '',
-      'style' => '',
-      'name' => __('Checkbox Field', 'ewpmb'),
     ];
     $new_field = array_merge($new_field, $args);
     if (false === $repeater) {
