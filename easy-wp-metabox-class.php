@@ -26,20 +26,18 @@
  * @package Easy WP Metabox Class
  */
 
-if (!class_exists('Easy_Meta_Box')) :
+if (!class_exists('EasyMetaBox')) :
 /**
  * All Types Meta Box class.
  *
- * @package Easy WP Metabox
+ * @package Easy WP Meta Box Class
  * @since 1.0
  */
-class Easy_Meta_Box {
+class EasyMetaBox {
   /**
-   * Holds meta box object
+   * Holds the meta box object.
    *
    * @var object
-   * @author Paulino Michelazzo
-   * @since 1.0
    * @access protected
    */
   protected $_meta_box;
@@ -48,58 +46,46 @@ class Easy_Meta_Box {
    * Holds meta box fields.
    *
    * @var array
-   * @author Paulino Michelazzo
-   * @since 1.0
    * @access protected
    */
   protected $_prefix;
 
   /**
-   * Holds Prefix for meta box fields.
+   * Holds prefix for meta box fields.
    *
    * @var array
-   * @author Paulino Michelazzo
-   * @since 1.0
    * @access protected
    */
   protected $_fields;
 
   /**
-   * Use local images.
-   *
-   * @var bool
-   * @author Paulino Michelazzo
-   * @since 1.0
-   * @access protected
-   */
-  protected $_Local_images;
-
-  /**
    * Paths to allow themes as well as plugins.
    *
    * @var string
-   * @author Paulino Michelazzo
-   * @since 1.0
    * @access protected
    */
-  protected $path, $jQueryUiPath;
+  protected $_path;
 
   /**
-   * $field_types holds used field types.
+   * Use local images.
+   *
+   * @var bool
+   * @access public
+   */
+  public $_local = false;
+
+  /**
+   * Holds used field types.
    * 
    * @var array
-   * @author Paulino Michelazzo
-   * @since 1.0
    * @access public
    */
   public $field_types = array();
 
   /**
-   * $inGroup holds grouping boolean.
+   * Holds grouping boolean.
    * 
    * @var boolean
-   * @author Paulino Michelazzo
-   * @since 1.0
    * @access public
    */
   public $inGroup = false;
@@ -107,8 +93,6 @@ class Easy_Meta_Box {
   /**
    * The constructor.
    *
-   * @author Paulino Michelazzo
-   * @since 1.0
    * @access public
    * @param array $meta_box
    */
@@ -121,25 +105,23 @@ class Easy_Meta_Box {
     // Load the translation.
     add_filter('init', [$this, 'load_textdomain']);
 
-    // Assign meta box values to local variables and add it's missed values.
+    // Assign meta box values to local variables and add the missed values.
     $this->_meta_box = $meta_box;
-    $this->_prefix = (isset($meta_box['prefix'])) ? $meta_box['prefix'] : '';
     $this->_fields = $this->_meta_box['fields'];
-    $this->_Local_images = (isset($meta_box['local_images'])) ? true : false;
     $this->add_missed_values();
 
     // Generate the working path based on the user parameter.
     if ($meta_box['use_with_theme'] === true) {
-      $this->path = get_stylesheet_directory_uri() . '/easy-wp-metabox';
+      $this->_path = get_stylesheet_directory_uri() . '/easy-wp-metabox';
     }
     elseif ($meta_box['use_with_theme'] === false) {
-      $this->path = plugins_url('easy-wp-metabox', plugin_basename(dirname(__FILE__)));
+      $this->_path = plugins_url('easy-wp-metabox', plugin_basename(dirname(__FILE__)));
     }
     else {
-      $this->path = $meta_box['use_with_theme'];
+      $this->_path = $meta_box['use_with_theme'];
     }
 
-    // Add metaboxes
+    // Add meta boxes
     add_action('add_meta_boxes', array($this, 'add'));
     add_action('save_post', array($this, 'save'));
     // Load common asset files.
@@ -152,20 +134,18 @@ class Easy_Meta_Box {
   /**
    * Load the JavaScript and CSS assets.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
   public function load_scripts_styles() {
-    // Get Plugin Path
     // Assets are loaded when needed
     global $typenow;
-    if (in_array($typenow,$this->_meta_box['pages']) && $this->is_edit_page()) {
+    if (in_array($typenow, $this->_meta_box['pages']) && $this->is_edit_page()) {
       // Enqueue Meta Box Style
-      wp_enqueue_style('easy-wp-metabox', $this->path . '/css/easy-wp-metabox.css');
+      wp_enqueue_style('easy-wp-metabox', $this->_path . '/css/easy-wp-metabox.css');
       // Enqueue Meta Box Scripts
-      wp_enqueue_script('easy-wp-metabox', $this->path. '/js/easy-wp-metabox.js', ['jquery'], null, true);
-      wp_enqueue_script('repeater', $this->path . '/js/repeater.js', ['jquery'], null, true);
+      wp_enqueue_script('easy-wp-metabox', $this->_path. '/js/easy-wp-metabox.js', ['jquery'], null, true);
+      wp_enqueue_script('repeater', $this->_path . '/js/repeater.js', ['jquery'], null, true);
       // Make upload feature work event when custom post type doesn't support 'editor'
       if ($this->has_field('image') || $this->has_field('file')) {
         wp_enqueue_script('media-upload');
@@ -181,21 +161,19 @@ class Easy_Meta_Box {
   }
 
   /**
-   * Check the select field and enqueue jQuery select2 library.
+   * Enqueue jQuery select2 library to select fields.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
   public function check_field_select() {
-    wp_enqueue_style('easy-multiselect-select2-css', $this->path . '/js/select2/select2.css', [], null);
-    wp_enqueue_script('easy-multiselect-select2-js', $this->path . '/js/select2/select2.js', ['jquery'], false, true);
+    wp_enqueue_style('easy-multiselect-select2-css', $this->_path . '/js/select2/select2.css', [], null);
+    wp_enqueue_script('easy-multiselect-select2-js', $this->_path . '/js/select2/select2.js', ['jquery'], false, true);
   }
 
   /**
    * Check the upload field and add actions.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
@@ -206,7 +184,6 @@ class Easy_Meta_Box {
   /**
    * Add data encoding type for file upload.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
@@ -215,9 +192,8 @@ class Easy_Meta_Box {
   }
 
   /**
-   * Check color field.
+   * Enqueue assets to color fields.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
@@ -229,15 +205,14 @@ class Easy_Meta_Box {
   }
 
   /**
-   * Check date field and enqueue the jQuery UI.
+   * Enqueue jQuery UI to date fields.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
   public function check_field_date() {
     if ($this->is_edit_page()) {
-      $path = $this->path . '/js/jquery-ui/';
+      $path = $this->_path . '/js/jquery-ui/';
       wp_enqueue_style('easy-jquery-ui-css', $path . 'jquery-ui.css');
       wp_enqueue_script('jquery-ui');
       wp_enqueue_script('jquery-ui-datepicker');
@@ -245,15 +220,14 @@ class Easy_Meta_Box {
   }
 
   /**
-   * Check time field and enqueue the jQuery UI.
+   * Enqueue jQuery UI to time fields.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
   public function check_field_time() {
     if ($this->is_edit_page()) {
-      $path = $this->path . '/js/jquery-ui/';
+      $path = $this->_path . '/js/jquery-ui/';
       wp_enqueue_style('easy-jquery-ui-css', $path .'jquery-ui.css');
       wp_enqueue_script('jquery-ui');
       wp_enqueue_script('easy-timepicker', $path .'jquery-ui-timepicker-addon.js', ['jquery-ui-slider', 'jquery-ui-datepicker'], false, true);
@@ -261,15 +235,14 @@ class Easy_Meta_Box {
   }
 
   /**
-   * Check Field code editor and enqueue JS and CSS code mirror.
+   * Enqueue assets to code fields.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
   public function check_field_code() {
     if ($this->is_edit_page()) {
-      $path = $this->path . '/js/codemirror/';
+      $path = $this->_path . '/js/codemirror/';
       wp_enqueue_style('easy-code-css', $path . 'codemirror.css', [], null);
       wp_enqueue_style('easy-code-css-dark', $path . 'solarizedDark.css', [], null);
       wp_enqueue_style('easy-code-css-light', $path . 'solarizedLight.css', [], null);
@@ -285,7 +258,6 @@ class Easy_Meta_Box {
   /**
    * Add meta box for multiple post types.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
@@ -303,9 +275,8 @@ class Easy_Meta_Box {
   }
 
   /**
-   * Callback function to show fields in meta box.
+   * Callback to display fields in meta box.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
@@ -347,7 +318,6 @@ class Easy_Meta_Box {
   /**
    * Show repeater fields.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -417,7 +387,6 @@ class Easy_Meta_Box {
   /**
    * Start the field presentation.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -445,7 +414,6 @@ class Easy_Meta_Box {
   /**
    * End the field presentation.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -461,7 +429,6 @@ class Easy_Meta_Box {
   /**
    * Handle the fields classes.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -479,7 +446,6 @@ class Easy_Meta_Box {
   /**
    * Show text field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -503,7 +469,6 @@ class Easy_Meta_Box {
   /**
    * Show number field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -529,7 +494,6 @@ class Easy_Meta_Box {
   /**
    * Show date field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -546,7 +510,6 @@ class Easy_Meta_Box {
   /**
    * Show textarea field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -566,11 +529,10 @@ class Easy_Meta_Box {
    * Used to create a category/tags/custom taxonomy checkbox list or a select
    * dropdown.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param string $field
-   * @param string $meta
+   * @param array $field
+   * @param string $data
    *
    * @uses get_terms()
    */
@@ -603,7 +565,6 @@ class Easy_Meta_Box {
   /**
    * Show wysiwig field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -626,11 +587,10 @@ class Easy_Meta_Box {
   /**
    * Show code editor field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
-   * @param string $meta
+   * @param string $data
    */
   public function show_field_code($field, $data) {
     $this->show_field_begin($field);
@@ -641,11 +601,10 @@ class Easy_Meta_Box {
   /**
    * Show hidden field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
-   * @param string|mixed $data
+   * @param string $data
    */
   public function show_field_hidden($field, $data) {
     print "<input type='hidden' " . (isset($field['style']) ? "style='{$field['style']}' " : '') . " class='at-text" . (isset($field['class']) ? ' ' . $field['class'] : '' )."' name='{$field['id']}' id='{$field['id']}' value='{$data}'/>";
@@ -654,10 +613,9 @@ class Easy_Meta_Box {
   /**
    * Show paragraph field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param string $field
+   * @param array $field
    */
   public function show_field_paragraph($field) {
     $this->show_field_begin($field);
@@ -668,7 +626,6 @@ class Easy_Meta_Box {
   /**
    * Show select field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -690,7 +647,6 @@ class Easy_Meta_Box {
   /**
    * Show radio field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -710,7 +666,6 @@ class Easy_Meta_Box {
   /**
    * Show checkbox field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -725,7 +680,6 @@ class Easy_Meta_Box {
   /**
    * Show file field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -761,7 +715,6 @@ class Easy_Meta_Box {
   /**
    * Show image field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -797,7 +750,6 @@ class Easy_Meta_Box {
   /**
    * Show color field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -822,11 +774,10 @@ class Easy_Meta_Box {
   /**
    * Show checkbox list field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
-   * @param string $meta
+   * @param string $data
    */
   public function show_field_checkbox_list($field, $data) {
     if (!is_array($data)) {
@@ -844,7 +795,6 @@ class Easy_Meta_Box {
   /**
    * Show time field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -862,7 +812,6 @@ class Easy_Meta_Box {
    *
    * Used to checkbox list or select dropdown.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -897,7 +846,6 @@ class Easy_Meta_Box {
   /**
    * Show conditional checkbox field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param array $field
@@ -943,7 +891,6 @@ class Easy_Meta_Box {
   /**
    * Save meta box data.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param string $post_id
@@ -987,7 +934,6 @@ class Easy_Meta_Box {
   /**
    * Common function to save fields.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param string $post_id
@@ -1014,7 +960,6 @@ class Easy_Meta_Box {
   /**
    * Save image field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param string $post_id
@@ -1034,7 +979,6 @@ class Easy_Meta_Box {
   /**
    * Save Wysiwyg field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param string $post_id
@@ -1051,7 +995,6 @@ class Easy_Meta_Box {
   /**
    * Save repeater Fields.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param string $post_id
@@ -1093,7 +1036,6 @@ class Easy_Meta_Box {
   /**
    * Save File Field.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    * @param string $post_id
@@ -1111,22 +1053,23 @@ class Easy_Meta_Box {
   }
 
   /**
-   * Add missed values for meta box.
+   * Add missing/default values for meta box and fields.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
   public function add_missed_values() {
-    // Default values for meta box
+    // Default values for meta boxes.
     $this->_meta_box = array_merge([
       'context' => 'normal',
       'priority' => 'high',
       'pages' => ['post'],
+      'prefix' => '',
+      'local_images' => false,
       'use_with_theme' => false,
     ], (array)$this->_meta_box);
 
-    // Default values for fields
+    // Default values for fields.
     foreach ($this->_fields as &$field) {
       $multiple = in_array($field['type'], ['checkbox_list', 'file', 'image']);
       $std = $multiple ? [] : '';
@@ -1144,10 +1087,9 @@ class Easy_Meta_Box {
   /**
    * Check if field with $type exists.
    *
-   * @param string $type
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
+   * @param string $type
    */
    public function has_field($type) {
     // Faster search in single dimension array.
@@ -1175,7 +1117,6 @@ class Easy_Meta_Box {
   /**
    * Check if current page is edit page.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
@@ -1193,10 +1134,9 @@ class Easy_Meta_Box {
    * The More standard and appropriate:
    * $_FILES['field']['index']['key']
    *
-   * @param string $files
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
+   * @param string $files
    */
   public function fix_file_array(&$files) {
     $output = [];
@@ -1213,7 +1153,6 @@ class Easy_Meta_Box {
    *
    * Used in order to not conflict with WP Admin Scripts.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
@@ -1228,11 +1167,10 @@ class Easy_Meta_Box {
   /**
    * Add field (generic function).
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $args mixed|array
+   * @param string $id
+   * @param mixed|array $args
    */
   public function addField($id, $args) {
     $new_field = [
@@ -1249,19 +1187,18 @@ class Easy_Meta_Box {
   /**
    * Add text field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // The label title, optional string
-   *   'size' => // The wide field number of characters, optional string, default 30
-   *   'desc' => // The description behind the field, optional string
-   *   'std' => // The default value, optional string
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   *   'validate_func' => // Validate function, optional string
-   * @param $repeater bool // Is this a field inside a repeater? Default false
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'size' => The wide field number of characters, optional string, default 30
+   *   'desc' => The description behind the field, optional string
+   *   'std' => The default value, optional string
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addText($id, $args, $repeater = false) {
     $new_field = [
@@ -1286,21 +1223,21 @@ class Easy_Meta_Box {
   /**
    * Add number field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string  field id, i.e. the meta key
-   *   'name' => // The label title, optional string
-   *   'size' => // The wide field number of characters, optional string, default 30
-   *   'desc' => // The description behind the field, optional string
-   *   'std' => // The default value, optional string
-   *   'min' => // The minimum value, optional integer/string
-   *   'max' => // The maximum value, optional integer/string
-   *   'step' => // The step value, optional integer/string
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   *   'validate_func' => // Validate function, optional string
-   * @param $repeater bool // Is this a field inside a repeater? Default false
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'size' => The wide field number of characters, optional string, default 30
+   *   'desc' => The description behind the field, optional string
+   *   'std' => The default value, optional string
+   *   'min' => The minimum value, optional integer/string
+   *   'max' => The maximum value, optional integer/string
+   *   'step' => The step value, optional integer/string
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addNumber($id, $args, $repeater = false) {
     $new_field = [
@@ -1327,22 +1264,23 @@ class Easy_Meta_Box {
   /**
    * Add date field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // The label title, optional string
-   *   'desc' => // The description behind the field, optional string
-   *   'std' => // The default value, optional string
-   *   'min' => // The minimum date value, optional date formatted string
-   *   'max' => // The maximum date value, optional date formatted string
-   *   'format' => // The date format, optional. Default "dd/mm/yy" See more formats here: http://goo.gl/Wcwxn
-   *   'step' => // The step value, optional integer/string
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   *   'validate_func' => // Validate function, optional string
-   * @param $repeater bool // Is this a field inside a repeater? Default false
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'desc' => The description behind the field, optional string
+   *   'std' => The default value, optional string
+   *   'min' => The minimum date value, optional date formatted string
+   *   'max' => The maximum date value, optional date formatted string
+   *   'format' => The date format, optional. Default "dd/mm/yy".
+   *   'step' => The step value, optional integer/string
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
+   * @param bool $repeater Is this a field inside a repeater?
+   * 
+   * @see Date formats: http://goo.gl/Wcwxn
    */
   public function addDate($id, $args, $repeater = false) {
     $new_field = [
@@ -1370,20 +1308,19 @@ class Easy_Meta_Box {
   /**
    * Add textarea field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // The label title, optional string
-   *   'desc' => // The description behind the field, optional string
-   *   'std' => // The default value, optional string
-   *   'rows' => // The number of rows in the box, optional integer/string. Default 10
-   *   'cols' => // The number of columns in the box, optional integer/string. Default 60
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   *   'validate_func' => // Validate function, optional string
-   * @param $repeater bool // Is this a field inside a repeater? Default false
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'desc' => The description behind the field, optional string
+   *   'std' => The default value, optional string
+   *   'rows' => The number of rows in the box, optional integer/string. Default 10
+   *   'cols' => The number of columns in the box, optional integer/string. Default 60
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addTextarea($id, $args, $repeater = false) {
     $new_field = [
@@ -1409,21 +1346,20 @@ class Easy_Meta_Box {
   /**
    * Add select field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $options array => // Value pairs for options
-   * @param $args mixed|array
-   *   'name' => // The label title, optional string
-   *   'desc' => // The description behind the field, optional string
-   *   'std' => // The default value, optional string
-   *   'multiple' => // Select multiple values, optional boolean. Default false.
-   *   'size' => // The number of values to be displayed in a multiple selection element. Optional integer/string. Default 1
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   *   'validate_func' => // Validate function, optional string
-   * @param $repeater bool // Is this a field inside a repeater? Default false
+   * @param string $id
+   * @param array $options Value pairs for options
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'desc' => The description behind the field, optional string
+   *   'std' => The default value, optional string
+   *   'multiple' => Select multiple values, optional boolean. Default false.
+   *   'size' => The number of values to be displayed in a multiple selection element. Optional integer/string. Default 1
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addSelect($id, $options, $args, $repeater = false) {
     $new_field = [
@@ -1450,19 +1386,18 @@ class Easy_Meta_Box {
   /**
    * Add radio field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $options array => // Value pairs for options
-   * @param $args mixed|array
-   *   'name' => // The label title, optional string
-   *   'desc' => // The description behind the field, optional string
-   *   'std' => // The default value, optional string
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   *   'validate_func' => // Validate function, optional string
-   * @param $repeater bool // Is this a field inside a repeater? Default false
+   * @param string $id
+   * @param array $options Value pairs for options
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'desc' => The description behind the field, optional string
+   *   'std' => The default value, optional string
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addRadio($id, $options, $args, $repeater = false) {
     $new_field = [
@@ -1487,17 +1422,16 @@ class Easy_Meta_Box {
   /**
    * Add image field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // The label title, optional string
-   *   'desc' => // The description behind the field, optional string
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   *   'validate_func' => // Validate function, optional string
-   * @param $repeater bool // Is this a field inside a repeater? Default false
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'desc' => The description behind the field, optional string
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addImage($id, $args, $repeater = false) {
     $new_field = [
@@ -1522,17 +1456,16 @@ class Easy_Meta_Box {
   /**
    * Add WYSIWYG Field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // The label title, optional string
-   *   'desc' => // The description behind the field, optional string
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   *   'validate_func' => // Validate function, optional string
-   * @param $repeater bool // Is this a field inside a repeater? Default false
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'desc' => The description behind the field, optional string
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
+   * @param bool $repeater Is this a field inside a repeater?
 */
   public function addWysiwyg($id, $args, $repeater = false) {
     $new_field = [
@@ -1559,17 +1492,19 @@ class Easy_Meta_Box {
    * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $options mixed|array options of taxonomy field
-   *   'taxonomy' => // The taxonomy name linked to. Default is category.
-   *   'type' => // How to display the taxonomy? 'select' (default) or 'checkbox_list'
-   *   'args' => // Arguments to query the taxonomy, see http://goo.gl/uAANN. Default: 'hide_empty' => 0
-   * @param $args mixed|array
-   *   'name' => // The label title, optional string
-   *   'desc' => // The description behind the field, optional string
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   * @param $repeater bool // Is this a field inside a repeater? Default false
+   * @param string $id
+   * @param mixed|array $options Taxonomy fields options
+   *   'taxonomy' => The taxonomy name linked to. Default is category.
+   *   'type' => How to display the taxonomy? 'select' (default) or 'checkbox_list'
+   *   'args' => Arguments to query the taxonomy, Default: 'hide_empty' => 0
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'desc' => The description behind the field, optional string
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   * @param bool $repeater Is this a field inside a repeater?
+   * 
+   * @see Taxonomy arguments: http://goo.gl/uAANN
    */
   public function addTaxonomy($id, $options, $args, $repeater = false) {
     $temp = [
@@ -1599,17 +1534,16 @@ class Easy_Meta_Box {
   /**
    * Add repeater field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // The label title, optional string
-   *   'desc' => // The description behind the field, optional string
-   *   'fields' => // Fields to repeater
-   *   'side' => // If the field is displayed side by side with the title, optional integer/string
-   *   'class' => // Classes names to be added on the field, optional string
-   *   'validate_func' => // Validate function, optional string
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => The label title, optional string
+   *   'desc' => The description behind the field, optional string
+   *   'fields' => Fields to repeater
+   *   'side' => If the field is displayed side by side with the title, optional integer/string
+   *   'class' => Classes names to be added on the field, optional string
+   *   'validate_func' => Validate function, optional string
    */
   public function addRepeaterBlock($id, $args) {
     $new_field = [
@@ -1629,17 +1563,18 @@ class Easy_Meta_Box {
   /**
    * Add time field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string- field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // field name/label string optional
-   *   'desc' => // field description, string optional
-   *   'std' => // default value, string optional
-   *   'validate_func' => // validate function, string optional
-   *   'format' => // time format, default HH:mm. Optional. See more formats here: http://goo.gl/83woX
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'std' => default value, string optional
+   *   'validate_func' => validate function, string optional
+   *   'format' => time format, default HH:mm. Optional.
+   * @param bool $repeater Is this a field inside a repeater?
+   * 
+   * @see Time formats: http://goo.gl/83woX
    */
   public function addTime($id, $args, $repeater = false) {
     $new_field = [
@@ -1663,18 +1598,17 @@ class Easy_Meta_Box {
   /**
    *  Add code editor field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string  field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // field name/label string optional
-   *   'desc' => // field description, string optional
-   *   'std' => // default value, string optional
-   *   'style' =>   // custom style for field, string optional
-   *   'syntax' =>   // syntax language to use in editor (php,javascript,css,html)
-   *   'validate_func' => // validate function, string optional
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'std' => default value, string optional
+   *   'style' => custom style for field, string optional
+   *   'syntax' => syntax language to use in editor (php,javascript,css,html)
+   *   'validate_func' => validate function, string optional
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addCode($id, $args, $repeater = false) {
     $new_field = [
@@ -1699,17 +1633,16 @@ class Easy_Meta_Box {
   /**
    * Add hidden field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string  field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // field name/label string optional
-   *   'desc' => // field description, string optional
-   *   'std' => // default value, string optional
-   *   'style' =>   // custom style for field, string optional
-   *   'validate_func' => // validate function, string optional
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'std' => default value, string optional
+   *   'style' => custom style for field, string optional
+   *   'validate_func' => validate function, string optional
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addHidden($id, $args, $repeater = false) {
     $new_field = [
@@ -1732,12 +1665,11 @@ class Easy_Meta_Box {
   /**
    * Add paragraph field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string  field id, i.e. the meta key
-   * @param $value paragraph html
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param string $id
+   * @param mixed|array $args
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addParagraph($id, $args, $repeater = false) {
     $new_field = [
@@ -1757,16 +1689,15 @@ class Easy_Meta_Box {
   /**
    *  Add checkbox field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string  field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // field name/label string optional
-   *   'desc' => // field description, string optional
-   *   'std' => // default value, string optional
-   *   'validate_func' => // validate function, string optional
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'std' => default value, string optional
+   *   'validate_func' => validate function, string optional
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addCheckbox($id, $args, $repeater = false) {
     $new_field = [
@@ -1789,17 +1720,16 @@ class Easy_Meta_Box {
   /**
    *  Add checkboxList field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string  field id, i.e. the meta key
-   * @param $options (array)  array of key => value pairs for select options
-   * @param $args mixed|array
-   *   'name' => // field name/label string optional
-   *   'desc' => // field description, string optional
-   *   'std' => // default value, string optional
-   *   'validate_func' => // validate function, string optional
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param string $id
+   * @param array $options Value pairs for select options.
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'std' => default value, string optional
+   *   'validate_func' => validate function, string optional
+   * @param bool $repeater Is this a field inside a repeater?
    *
    * @return remember to call: $checkbox_list = get_post_meta(get_the_ID(), 'meta_name', false);
    *   which means the last param as false to get the values in an array.
@@ -1827,16 +1757,15 @@ class Easy_Meta_Box {
   /**
    *  Add color field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string  field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // field name/label string optional
-   *   'desc' => // field description, string optional
-   *   'std' => // default value, string optional
-   *   'validate_func' => // validate function, string optional
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'std' => default value, string optional
+   *   'validate_func' => validate function, string optional
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addColor($id, $args, $repeater = false) {
     $new_field = [
@@ -1858,15 +1787,14 @@ class Easy_Meta_Box {
   /**
    *  Add file field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string field id, i.e. the meta key
-   * @param $args mixed|array
-   *   'name' => // field name/label string optional
-   *   'desc' => // field description, string optional
-   *   'validate_func' => // validate function, string optional
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'validate_func' => validate function, string optional
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addFile($id, $args, $repeater = false) {
     $new_field = [
@@ -1889,20 +1817,19 @@ class Easy_Meta_Box {
   /**
    * Add posts field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string  field id, i.e. the meta key
-   * @param $options mixed|array options of taxonomy field
-   *   'post_type' =>    // post type name, 'post' (default) 'page' or any custom post type
-   *   'type' =>  // how to show posts? 'select' (default) or 'checkbox_list'
-   *   'args' =>  // arguments to query posts, see http://goo.gl/is0yK default ('posts_per_page' => -1)
-   * @param $args mixed|array
-   *   'name' => // field name/label string optional
-   *   'desc' => // field description, string optional
-   *   'std' => // default value, string optional
-   *   'validate_func' => // validate function, string optional
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param string $id
+   * @param mixed|array $options Taxonomy field options.
+   *   'post_type' => post type name, 'post' (default) 'page' or any custom post type
+   *   'type' => how to show posts? 'select' (default) or 'checkbox_list'
+   *   'args' => arguments to query posts, see http://goo.gl/is0yK default ('posts_per_page' => -1)
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'std' => default value, string optional
+   *   'validate_func' => validate function, string optional
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addPosts($id, $options, $args, $repeater = false) {
     $post_type = isset($options['post_type']) ? $options['post_type'] : (isset($args['post_type']) ? $args['post_type'] : 'post');
@@ -1932,17 +1859,16 @@ class Easy_Meta_Box {
   /**
    *  Add checkbox conditional field.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $id string  field id, i.e. the key
-   * @param $args mixed|array
-   *   'name' => // field name/label string optional
-   *   'desc' => // field description, string optional
-   *   'std' => // default value, string optional
-   *   'validate_func' => // validate function, string optional
+   * @param string $id
+   * @param mixed|array $args
+   *   'name' => field name/label string optional
+   *   'desc' => field description, string optional
+   *   'std' => default value, string optional
+   *   'validate_func' => validate function, string optional
    *   'fields' => list of fields to show conditionally.
-   * @param $repeater bool  is this a field inside a repeater? true|false(default)
+   * @param bool $repeater Is this a field inside a repeater?
    */
   public function addCondition($id, $args, $repeater = false) {
     $new_field = [
@@ -1966,7 +1892,6 @@ class Easy_Meta_Box {
   /**
    * Finish meta box declaration.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
    */
@@ -1977,10 +1902,9 @@ class Easy_Meta_Box {
   /**
    * Helper to check empty arrays.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param $args mixed|array
+   * @param mixed|array $array
    */
   public function is_array_empty($array){
     if (!is_array($array)) {
@@ -2008,12 +1932,13 @@ class Easy_Meta_Box {
    *
    * Check if the uploaded file is of the expected format.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
+   * @param array $file Uploaded file.
+   * 
+   * @return array file with error on mismatch.
+   * 
    * @uses get_allowed_mime_types() to check allowed types
-   * @param array $file uploaded file
-   * @return array file with error on mismatch
    */
   function Validate_upload_file_type($file) {
     if (isset($_POST['uploadeType']) && !empty($_POST['uploadeType']) && isset($_POST['uploadeType']) && $_POST['uploadeType'] == 'my_meta_box'){
@@ -2037,23 +1962,23 @@ class Easy_Meta_Box {
   /**
    * Sanitize the field id.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param  string $str string to sanitize
-   * @return string sanitized string
+   * @param string $str String to sanitize.
+   * 
+   * @return string Sanitized string.
    */
   public function idfy($str){
     return str_replace(" ", "_", $str);
   }
 
   /**
-   * stripNumeric Strip number form string.
+   * stripNumeric Strip numbers form string.
    *
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
-   * @param  string $str
+   * @param string $str
+   * 
    * @return string number less string
    */
   public function stripNumeric($str){
@@ -2063,9 +1988,9 @@ class Easy_Meta_Box {
   /**
    * Load the textdomain.
    * 
-   * @author Paulino Michelazzo
    * @since 1.0
    * @access public
+   * 
    * @return void
    */
   public function load_textdomain(){

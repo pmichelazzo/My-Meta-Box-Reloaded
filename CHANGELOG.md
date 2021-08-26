@@ -15,7 +15,7 @@
 
 ### Fixed
 
--
+- Normalize code documentation.
 
 ## [1.0.2] - 2021-08-26
 
