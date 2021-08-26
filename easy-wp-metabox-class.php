@@ -82,7 +82,7 @@ class Easy_Meta_Box {
    * @since 1.0
    * @access protected
    */
-  protected $SelfPath, $jQueryUiPath;
+  protected $path, $jQueryUiPath;
 
   /**
    * $field_types holds used field types.
@@ -127,22 +127,16 @@ class Easy_Meta_Box {
     $this->_fields = $this->_meta_box['fields'];
     $this->_Local_images = (isset($meta_box['local_images'])) ? true : false;
     $this->add_missed_values();
-    if (isset($meta_box['use_with_theme'])) {
-      if ($meta_box['use_with_theme'] === true) {
-        $this->SelfPath = get_stylesheet_directory_uri() . '/easy-wp-metabox';
-      }
-      elseif ($meta_box['use_with_theme'] === false) {
-        $this->SelfPath = plugins_url('easy-wp-metabox', plugin_basename(dirname(__FILE__)));
-        $this->jQueryUiPath = $this->SelfPath . '/js/jquery-ui/';
-      }
-      else {
-        $this->SelfPath = $meta_box['use_with_theme'];
-        $this->jQueryUiPath = $this->SelfPath . '/js/jquery-ui/';
-      }
+
+    // Generate the working path based on the user parameter.
+    if ($meta_box['use_with_theme'] === true) {
+      $this->path = get_stylesheet_directory_uri() . '/easy-wp-metabox';
+    }
+    elseif ($meta_box['use_with_theme'] === false) {
+      $this->path = plugins_url('easy-wp-metabox', plugin_basename(dirname(__FILE__)));
     }
     else {
-      $this->SelfPath = plugins_url('easy-wp-metabox', plugin_basename(dirname(__FILE__)));
-      $this->jQueryUiPath = $this->SelfPath . '/js/jquery-ui/';
+      $this->path = $meta_box['use_with_theme'];
     }
 
     // Add metaboxes
@@ -164,15 +158,14 @@ class Easy_Meta_Box {
    */
   public function load_scripts_styles() {
     // Get Plugin Path
-    $plugin_path = $this->SelfPath;
     // Assets are loaded when needed
     global $typenow;
     if (in_array($typenow,$this->_meta_box['pages']) && $this->is_edit_page()) {
       // Enqueue Meta Box Style
-      wp_enqueue_style('easy-wp-metabox', $plugin_path . '/css/easy-wp-metabox.css');
+      wp_enqueue_style('easy-wp-metabox', $this->path . '/css/easy-wp-metabox.css');
       // Enqueue Meta Box Scripts
-      wp_enqueue_script('easy-wp-metabox', $plugin_path . '/js/easy-wp-metabox.js', ['jquery'], null, true);
-      wp_enqueue_script('repeater', $plugin_path . '/js/repeater.js', ['jquery'], null, true);
+      wp_enqueue_script('easy-wp-metabox', $this->path. '/js/easy-wp-metabox.js', ['jquery'], null, true);
+      wp_enqueue_script('repeater', $this->path . '/js/repeater.js', ['jquery'], null, true);
       // Make upload feature work event when custom post type doesn't support 'editor'
       if ($this->has_field('image') || $this->has_field('file')) {
         wp_enqueue_script('media-upload');
@@ -195,9 +188,8 @@ class Easy_Meta_Box {
    * @access public
    */
   public function check_field_select() {
-    $path = $this->SelfPath . '/js/select2/';
-    wp_enqueue_style('easy-multiselect-select2-css', $path . 'select2.css', [], null);
-    wp_enqueue_script('easy-multiselect-select2-js', $path . 'select2.js', ['jquery'], false, true);
+    wp_enqueue_style('easy-multiselect-select2-css', $this->path . '/js/select2/select2.css', [], null);
+    wp_enqueue_script('easy-multiselect-select2-js', $this->path . '/js/select2/select2.js', ['jquery'], false, true);
   }
 
   /**
@@ -245,7 +237,8 @@ class Easy_Meta_Box {
    */
   public function check_field_date() {
     if ($this->is_edit_page()) {
-      wp_enqueue_style('easy-jquery-ui-css', $this->jQueryUiPath . 'jquery-ui.css');
+      $path = $this->path . '/js/jquery-ui/';
+      wp_enqueue_style('easy-jquery-ui-css', $path . 'jquery-ui.css');
       wp_enqueue_script('jquery-ui');
       wp_enqueue_script('jquery-ui-datepicker');
     }
@@ -260,9 +253,10 @@ class Easy_Meta_Box {
    */
   public function check_field_time() {
     if ($this->is_edit_page()) {
-      wp_enqueue_style('easy-jquery-ui-css', $this->jQueryUiPath .'jquery-ui.css');
+      $path = $this->path . '/js/jquery-ui/';
+      wp_enqueue_style('easy-jquery-ui-css', $path .'jquery-ui.css');
       wp_enqueue_script('jquery-ui');
-      wp_enqueue_script('easy-timepicker', $this->jQueryUiPath .'jquery-ui-timepicker-addon.js', ['jquery-ui-slider', 'jquery-ui-datepicker'], false, true);
+      wp_enqueue_script('easy-timepicker', $path .'jquery-ui-timepicker-addon.js', ['jquery-ui-slider', 'jquery-ui-datepicker'], false, true);
     }
   }
 
@@ -275,7 +269,7 @@ class Easy_Meta_Box {
    */
   public function check_field_code() {
     if ($this->is_edit_page()) {
-      $path = $this->SelfPath . '/js/codemirror/';
+      $path = $this->path . '/js/codemirror/';
       wp_enqueue_style('easy-code-css', $path . 'codemirror.css', [], null);
       wp_enqueue_style('easy-code-css-dark', $path . 'solarizedDark.css', [], null);
       wp_enqueue_style('easy-code-css-light', $path . 'solarizedLight.css', [], null);
@@ -1129,6 +1123,7 @@ class Easy_Meta_Box {
       'context' => 'normal',
       'priority' => 'high',
       'pages' => ['post'],
+      'use_with_theme' => false,
     ], (array)$this->_meta_box);
 
     // Default values for fields
